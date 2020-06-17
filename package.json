@@ -1,18 +1,22 @@
 {
   "name": "azure-devops-vault-interaction",
   "scripts": {
+    "clean": "rimraf dist/kv_read/node_modules && rimraf dist/kv_read/common && rimraf dist/kv_read/kv_read* && rimraf *.vsix",
+    "prebuild": "npm run clean",
     "build": "tsc",
-    "postbuild": "powershell -ExecutionPolicy ByPass -Command ./build_job.ps1",
+    "postbuild": "pwsh -ExecutionPolicy ByPass -Command ./build_job.ps1",
     "pretest": "",
     "test": "mocha ./test/run_all.js"
   },
   "dependencies": {
     "azure-pipelines-task-lib": "2.8.0",
-    "typescript": "3.3.3333"
+    "typescript": "3.3.3333",
+    "iconv-lite": "^0.6.0"
   },
   "devDependencies": {
     "@types/node": "^8.10.42",
     "@types/q": "^1.5.1",
-    "mocha": "^6.1.4"
+    "mocha": "^6.1.4",
+    "rimraf": "3.0.2"
   }
 }

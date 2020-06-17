@@ -1,11 +1,11 @@
 const tmrm = require('azure-pipelines-task-lib/mock-run');
+const ma = require('vsts-task-lib/mock-answer');
 const path = require('path');
 
 var taskPath = path.join(__dirname, '..', 'dist/kv_read/kv_read.js');
 var conf = require(path.join(__dirname, 'conf.json'));
 
 var tr = new tmrm.TaskMockRunner(taskPath);
-
 tr.setInput("strUrl", conf.vault.url);
 tr.setInput("ignoreCertificateChecks", conf.vault.ignore_ssl);
 tr.setInput("strRequestTimeout", conf.vault.strRequestTimeout ? conf.vault.strRequestTimeout : "");
@@ -56,6 +56,8 @@ tr.setInput("strPrefixType", conf.kv_read.strPrefixType);
 tr.setInput("strSecretPath", conf.kv_read.strSecretPath ? conf.kv_read.strSecretPath : "");
 tr.setInput("replaceCR", conf.kv_read.replaceCR ? conf.kv_read.replaceCR : false);
 tr.setInput("strCRPrefix", conf.kv_read.strCRPrefix ? conf.kv_read.strCRPrefix : "");
+tr.setInput("strFilePath", conf.kv_read.strFilePath);
+tr.setInput("strTargetFiles", conf.kv_read.strTargetFiles);
 
 tr.registerMock('azure-pipelines-task-lib/toolrunner', require('azure-pipelines-task-lib/mock-toolrunner'));
 tr.run();

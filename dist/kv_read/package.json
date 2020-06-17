@@ -1,7 +1,8 @@
 {
   "name": "VaultReadKV",
   "dependencies": {
-    "azure-pipelines-task-lib": "2.8.0"
+    "azure-pipelines-task-lib": "2.8.0",
+    "iconv-lite": "^0.6.0"
   },
   "engines": {
     "node": ">=6"

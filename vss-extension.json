@@ -1,67 +1,68 @@
 {
-    "manifestVersion":  1,
-    "id":  "azure-devops-vault-interaction",
-    "name":  "Vault Interaction",
-    "version":  "2.3.0",
-    "publisher":  "Fizcko",
-    "public":  true,
-    "targets":  [
-                    {
-                        "id":  "Microsoft.VisualStudio.Services"
-                    }
-                ],
-    "description":  "This extension provide the ability to interact with HashiCorp Vault.",
-    "categories":  [
-                       "Azure Pipelines"
-                   ],
-    "icons":  {
-                  "default":  "images/extension-icon.png"
-              },
-    "content":  {
-                    "details":  {
-                                    "path":  "overview.md"
-                                }
-                },
-    "links":  {
-                  "license":  {
-                                  "uri":  "https://github.com/Fizcko/Azure_DevOps_Vault_Interaction/blob/master/LICENSE"
-                              },
-                  "repository":  {
-                                     "uri":  "https://github.com/Fizcko/Azure_DevOps_Vault_Interaction"
-                                 },
-                  "support":  {
-                                  "uri":  "https://github.com/Fizcko/Azure_DevOps_Vault_Interaction/issues"
-                              }
-              },
-    "tags":  [
-                 "HashiCorp",
-                 "vault",
-                 "password",
-                 "secrets"
-             ],
-    "repository":  {
-                       "type":  "git",
-                       "uri":  "https://github.com/Fizcko/Azure_DevOps_Vault_Interaction"
-                   },
-    "files":  [
-                  {
-                      "path":  "dist/kv_read"
-                  },
-                  {
-                      "path":  "screenshots",
-                      "addressable":  true
-                  }
-              ],
-    "contributions":  [
-                          {
-                              "id":  "azure.devops.vault-interaction.kv.read",
-                              "type":  "ms.vss-distributed-task.task",
-                              "targets":  [
-                                              "ms.vss-distributed-task.tasks"
-                                          ],
-                              "properties":  {
-                                                 "name":  "dist/kv_read"
-                                             }
-                          }
-                      ]
+  "manifestVersion": 1,
+  "id": "azure-devops-vault-findreplace",
+  "name": "Vault Find/Replace Token",
+  "version": "1.0.3",
+  "publisher": "PetronasDigital",
+  "public": true,
+  "targets": [
+    {
+      "id": "Microsoft.VisualStudio.Services"
+    }
+  ],
+  "description": "Extended from Fizcko Vault extension, this will find/replace token in files instead of variables. All credits goes to original author.",
+  "categories": [
+    "Azure Pipelines"
+  ],
+  "icons": {
+    "default": "images/extension-icon.png"
+  },
+  "content": {
+    "details": {
+      "path": "overview.md"
+    }
+  },
+  "links": {
+    "license": {
+      "uri": "https://github.com/petronasdigital/Azure_DevOps_Vault_Interaction/blob/master/LICENSE"
+    },
+    "repository": {
+      "uri": "https://github.com/petronasdigital/Azure_DevOps_Vault_Interaction"
+    },
+    "support": {
+      "uri": "https://github.com/petronasdigital/Azure_DevOps_Vault_Interaction/issues"
+    }
+  },
+  "tags": [
+    "HashiCorp",
+    "vault",
+    "password",
+    "secrets",
+    "tokenizer"
+  ],
+  "repository": {
+    "type": "git",
+    "uri": "https://github.com/petronasdigital/Azure_DevOps_Vault_Interaction"
+  },
+  "files": [
+    {
+      "path": "dist/kv_read"
+    },
+    {
+      "path": "screenshots",
+      "addressable": true
+    }
+  ],
+  "contributions": [
+    {
+      "id": "azure.devops.vault-findreplace.kv.read",
+      "type": "ms.vss-distributed-task.task",
+      "targets": [
+        "ms.vss-distributed-task.tasks"
+      ],
+      "properties": {
+        "name": "dist/kv_read"
+      }
+    }
+  ]
 }
