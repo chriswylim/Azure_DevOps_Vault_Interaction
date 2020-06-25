@@ -113,7 +113,6 @@ export function requestVault(requestedUrl: string, ignoreCertificateChecks: bool
 
 export function getToken(strRequestTimeout): Promise<string> {
     return new Promise((resolve, reject) => {
-
         var strUrl = tl.getInput('strUrl', true);
 		var strAuthType = tl.getInput('strAuthType', true);
 		var ignoreCertificateChecks = tl.getBoolInput('ignoreCertificateChecks', true);
@@ -220,30 +219,128 @@ export function getToken(strRequestTimeout): Promise<string> {
 				bodyData = JSON.stringify({
 					password: strPassword
 				});		
-				break;
+                break;
+            case "azuremsi":
+                break;
 			default:
                 reject("Authentication method not supported.");
 		}
         
-        if(strAuthType != "clientToken"){
+        if (strAuthType != "clientToken"){
             console.log("[INFO] Authentication URL : '" + authUrl + "'");
             console.log("[INFO] Starting requesting client token ...");
         }
 
-        requestVault(authUrl, ignoreCertificateChecks, strRequestTimeout, null, "POST", bodyData).then(async function(result) {
+        if (strAuthType == 'azuremsi') {
+            console.log("[INFO] Authentication Method : 'Azure MSI'");
+            var strResourceUri = tl.getInput('strResourceURI', true);
+            requestAzureJwt(strResourceUri)
+                .then(result => {
+                    var strAuthPath = tl.getInput('strAuthPath', false);
+                    var apiURL = "/v1/auth/azure/login";
+                    if(strAuthPath){
+                        apiURL = "/v1/auth/" + strAuthPath + "/login";
+                    }
+                    var strRole = tl.getInput('strRole', true);
+                    authUrl = url.resolve(strUrl,apiURL);
+                    bodyData = JSON.stringify({
+                        role: strRole,
+                        jwt: result.jwt,
+                        subscription_id: result.subscriptionId,
+                        resource_group_name: result.rgName,
+                        vm_name: result.vmName,
+                        vmss_name: result.vmsName
+                    });		
+                    requestVault(authUrl, ignoreCertificateChecks, strRequestTimeout, null, "POST", bodyData).then(async function(result) {
+                        var resultJSON = JSON.parse(result);
+                        var token = resultJSON.auth.client_token;
+                        var lease_duration = resultJSON.lease_duration || resultJSON.auth.lease_duration;
+                        console.log("[INFO] Token received");
+                        console.log("[INFO] Token lease duration : '" + lease_duration + "'");
+                        resolve(token);
+                    }).catch(function(err) {
+                        reject(err);
+                    });
+                })
+                .catch(error => {
+                    console.log(error);
+                    reject(error);
+                });
+        } else {
+            requestVault(authUrl, ignoreCertificateChecks, strRequestTimeout, null, "POST", bodyData).then(async function(result) {
+                var resultJSON = JSON.parse(result);
+                var token = resultJSON.auth.client_token;
+                var lease_duration = resultJSON.lease_duration || resultJSON.auth.lease_duration;
+                console.log("[INFO] Token received");
+                console.log("[INFO] Token lease duration : '" + lease_duration + "'");
+                resolve(token);
+            }).catch(function(err) {
+                reject(err);
+            });
+        }
+    });
+}
 
-            var resultJSON = JSON.parse(result);
-            var token = resultJSON.auth.client_token;
-            var lease_duration = resultJSON.lease_duration || resultJSON.auth.lease_duration;
-
-            console.log("[INFO] Token received");
-            console.log("[INFO] Token lease duration : '" + lease_duration + "'");
-
-            resolve(token);
-
-        }).catch(function(err) {
-			reject(err);
-		});
-
+export function requestAzureJwt(resourceId : string) : Promise<any> {
+    var hostname = 'http://169.254.169.254';
+    return new Promise<any>((resolve, reject) => {
+        try {
+            var tokenUrl = hostname + '/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + encodeURIComponent(resourceId);
+            var options = url.parse(tokenUrl);
+            options.port = 80;
+            options.headers = {
+                'Metadata': 'true'
+            };
+            options.method = 'GET';
+            var tokenReq = http.request(options, res => {
+                var data = new Stream();
+                var statusCode = parseInt(res.statusCode);
+                res.on('data', d => data.push(d));
+                res.on('end', () => {
+                    if (statusCode < 200 || statusCode > 299) {
+                        reject('Error requesting MSI token.');
+                        return;
+                    }
+                    var token = JSON.parse(data.read());
+                    resolve(token);
+                });
+            }).on('error', error => reject('Error requesting token: ' + error));
+            tokenReq.end();
+        } catch(error) {
+            reject(error);
+        }
+    }).then(token => {
+        return new Promise((resolve, reject) => {
+            try {
+                var instanceUrl = hostname + '/metadata/instance?api-version=2017-08-01';
+                var options = url.parse(instanceUrl);
+                options.port = 80;
+                options.headers = {
+                    'Metadata': 'true'
+                };
+                var instanceReq = http.request(options, res => {
+                    var data = new Stream();
+                    var statusCode = parseInt(res.statusCode);
+                    res.on('data', d => data.push(d));
+                    res.on('end', () => {
+                        if (statusCode < 200 || statusCode > 299) {
+                            reject('Error requesting instance details.');
+                            return;
+                        }
+                        var instance = JSON.parse(data.read());
+                        var result = {
+                            jwt: token.access_token,
+                            subscriptionId: instance.compute.subscriptionId,
+                            rgName: instance.compute.resourceGroupName,
+                            vmName: instance.compute.name
+                        };
+                        resolve(result);
+                    });
+                }).on('error', error => reject('Error request instance: ' + error));
+                instanceReq.end();
+            } catch(error) {
+                reject(error);
+            }
+        });
     });
 }

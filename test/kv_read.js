@@ -46,6 +46,12 @@ switch(strAuthType){
         tr.setInput("strUsername", conf.auth.userpass.strUsername);
         tr.setInput("strPassword", conf.auth.userpass.strPassword);
         break;
+        case "azuremsi":
+            tr.setInput("strAuthPath", "azure");
+            tr.setInput("strAuthType", "azuremsi");
+            tr.setInput("strRole", "dev-role");
+            tr.setInput("strResourceURI", "https://vault.hashicorp.io");
+            break;
 }
 
 tr.setInput("strKVEnginePath", conf.kv_read.strKVEnginePath);
