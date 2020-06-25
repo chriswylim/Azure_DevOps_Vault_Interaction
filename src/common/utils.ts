@@ -41,8 +41,7 @@ export function exportJSONValues(obj: any, prefix: string, replaceCR: boolean, s
                         });
                     }
                 });
-                // tl.setVariable(prefix, objValue, true);
-                console.log("[INFO] Injecting variable : " + prefix + ", value : " + objValue);
+                tl.setVariable(prefix, objValue, true);
             }
             else{
                 if(prefix != ""){
