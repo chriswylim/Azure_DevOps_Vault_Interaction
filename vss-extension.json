@@ -1,8 +1,8 @@
 {
   "manifestVersion": 1,
-  "id": "azure-devops-vault-findreplace",
-  "name": "Vault Find/Replace Token",
-  "version": "1.1.1",
+  "id": "azure-devops-vault-aws-auth",
+  "name": "Vault AWS Auth",
+  "version": "1.0.0",
   "publisher": "PetronasDigital",
   "public": true,
   "targets": [

@@ -222,6 +222,9 @@ export function getToken(strRequestTimeout): Promise<string> {
                 break;
             case "azuremsi":
                 break;
+            // AWS
+            case "aws":
+                break;
 			default:
                 reject("Authentication method not supported.");
 		}
@@ -266,6 +269,112 @@ export function getToken(strRequestTimeout): Promise<string> {
                     console.log(error);
                     reject(error);
                 });
+if (strAuthType == 'azuremsi') {
+            console.log("[INFO] Authentication Method : 'Azure MSI'");
+            var strResourceUri = tl.getInput('strResourceURI', true);
+            requestAzureJwt(strResourceUri)
+                .then(result => {
+                    var strAuthPath = tl.getInput('strAuthPath', false);
+                    var apiURL = "/v1/auth/azure/login";
+                    if(strAuthPath){
+                        apiURL = "/v1/auth/" + strAuthPath + "/login";
+                    }
+                    var strRole = tl.getInput('strRole', true);
+                    authUrl = url.resolve(strUrl,apiURL);
+                    bodyData = JSON.stringify({
+                        role: strRole,
+                        jwt: result.jwt,
+                        subscription_id: result.subscriptionId,
+                        resource_group_name: result.rgName,
+                        vm_name: result.vmName,
+                        vmss_name: result.vmsName
+                    });		
+                    requestVault(authUrl, ignoreCertificateChecks, strRequestTimeout, null, "POST", bodyData).then(async function(result) {
+                        var resultJSON = JSON.parse(result);
+                        var token = resultJSON.auth.client_token;
+                        var lease_duration = resultJSON.lease_duration || resultJSON.auth.lease_duration;
+                        console.log("[INFO] Token received");
+                        console.log("[INFO] Token lease duration : '" + lease_duration + "'");
+                        resolve(token);
+                    }).catch(function(err) {
+                        reject(err);
+                    });
+                })
+                .catch(error => {
+                    console.log(error);
+                    reject(error);
+                });
+if (strAuthType == 'azuremsi') {
+            console.log("[INFO] Authentication Method : 'Azure MSI'");
+            var strResourceUri = tl.getInput('strResourceURI', true);
+            requestAzureJwt(strResourceUri)
+                .then(result => {
+                    var strAuthPath = tl.getInput('strAuthPath', false);
+                    var apiURL = "/v1/auth/azure/login";
+                    if(strAuthPath){
+                        apiURL = "/v1/auth/" + strAuthPath + "/login";
+                    }
+                    var strRole = tl.getInput('strRole', true);
+                    authUrl = url.resolve(strUrl,apiURL);
+                    bodyData = JSON.stringify({
+                        role: strRole,
+                        jwt: result.jwt,
+                        subscription_id: result.subscriptionId,
+                        resource_group_name: result.rgName,
+                        vm_name: result.vmName,
+                        vmss_name: result.vmsName
+                    });		
+                    requestVault(authUrl, ignoreCertificateChecks, strRequestTimeout, null, "POST", bodyData).then(async function(result) {
+                        var resultJSON = JSON.parse(result);
+                        var token = resultJSON.auth.client_token;
+                        var lease_duration = resultJSON.lease_duration || resultJSON.auth.lease_duration;
+                        console.log("[INFO] Token received");
+                        console.log("[INFO] Token lease duration : '" + lease_duration + "'");
+                        resolve(token);
+                    }).catch(function(err) {
+                        reject(err);
+                    });
+                })
+                .catch(error => {
+                    console.log(error);
+                    reject(error);
+                });
+if (strAuthType == 'aws') {
+    console.log("[INFO] Authentication Method : 'AWS'");
+    var strResourceUri = tl.getInput('strResourceURI', true);
+    // function - extract jwt here
+    requestAzureJwt(strResourceUri)
+        .then(result => {
+            var strAuthPath = tl.getInput('strAuthPath', false);
+            var apiURL = "/v1/auth/azure/login";
+            if(strAuthPath){
+                apiURL = "/v1/auth/" + strAuthPath + "/login";
+            }
+            var strRole = tl.getInput('strRole', true);
+            authUrl = url.resolve(strUrl,apiURL);
+            bodyData = JSON.stringify({
+                role: strRole,
+                jwt: result.jwt,
+                subscription_id: result.subscriptionId,
+                resource_group_name: result.rgName,
+                vm_name: result.vmName,
+                vmss_name: result.vmsName
+            });		
+            requestVault(authUrl, ignoreCertificateChecks, strRequestTimeout, null, "POST", bodyData).then(async function(result) {
+                var resultJSON = JSON.parse(result);
+                var token = resultJSON.auth.client_token;
+                var lease_duration = resultJSON.lease_duration || resultJSON.auth.lease_duration;
+                console.log("[INFO] Token received");
+                console.log("[INFO] Token lease duration : '" + lease_duration + "'");
+                resolve(token);
+            }).catch(function(err) {
+                reject(err);
+            });
+        })
+        .catch(error => {
+            console.log(error);
+            reject(error);
+        });
         } else {
             requestVault(authUrl, ignoreCertificateChecks, strRequestTimeout, null, "POST", bodyData).then(async function(result) {
                 var resultJSON = JSON.parse(result);
